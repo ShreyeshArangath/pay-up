@@ -1,0 +1,9 @@
+CREATE TABLE payup_transactions (
+    transactionId INT PRIMARY KEY AUTO_INCREMENT,
+    Trip VARCHAR(255) NOT NULL,
+    Name VARCHAR(255) NOT NULL,
+    Share VARCHAR(255),
+    totalCost DOUBLE NOT NULL,
+    grossAmount DOUBLE NOT NULL,
+    Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
