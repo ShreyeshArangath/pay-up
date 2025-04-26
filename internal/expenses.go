@@ -2,6 +2,9 @@ package internal
 
 import (
 	"context"
+	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -9,11 +12,11 @@ import (
 
 func InitializeExpenseMCPTools(s *server.MCPServer) {
 	calculateShareTool := mcp.NewTool(
-		"calculate_share",
-		mcp.WithDescription("Calculate the share amount per person based on a given receipt. Based on the receipt and the description given, be sure to take out the items and assign it to a given person. Once you have assigned the items to a given person, sum the prices associated with each of the items and then take the total amount (including tip) and gross amount and pass it to the CalculateShare function. The function will return the share amount for each person."),
-		mcp.WithString("items_associated_with_person",
+		"calculate_share_per_item",
+		mcp.WithDescription("Calculate the share amount per person per item based on a given receipt. Based on the receipt and the description given, be sure to take out the items and assign it to a given person. Once you have assigned the item to a given person, NOTE you might have to call this tool multiple times based on the number of items owned by the user, then take the total amount (including tip) and gross amount and pass it to the CalculateShare function. The function will return the share amount for each person per item. This would serve as a entry into the database using the write_query or update_query tool."),
+		mcp.WithString("item_associated_with_person",
 			mcp.Required(),
-			mcp.Description("The set of items associated with the person and their associated amounts. If an item is shared by multiple people divide that amount by the number of people sharing it. The items are in the format of item_name:amount. For example, 'item1:10.00,item2:20.00' means that item1 is associated with 10.00 and item2 is associated with 20.00."),
+			mcp.Description("The item asscoiated with the person, in the format item_name:item_price"),
 		),
 		mcp.WithString("gross_amount",
 			mcp.Required(),
@@ -49,6 +52,8 @@ func InitializeExpenseMCPTools(s *server.MCPServer) {
 				shareTotal += float32(itemPrice)
 			}
 		}
+		share := CalculateShare(grossAmount, totalAmount, shareTotal)
+		return mcp.NewToolResultText(fmt.Sprintf("%.2f", share)), nil
 	})
 }
 

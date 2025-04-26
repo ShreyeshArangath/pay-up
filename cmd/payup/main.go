@@ -3,9 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
-	"strconv" // Needed for parsing the database port
+	"strconv"
 
 	"github.com/ShreyeshArangath/payup/internal"
 	"github.com/mark3labs/mcp-go/server"
@@ -18,11 +17,6 @@ func main() {
 		"1.0.0", // Version
 	)
 
-	// --- Configure Database (Required for MySQL tools) ---
-	// In a real application, load database configuration from environment variables,
-	// a configuration file, or a secrets manager.
-	// Replacing these placeholders is essential for the MySQL tools to work.
-	// Using environment variables as a slightly better practice than hardcoding.
 	dbUser := os.Getenv("DB_USER") // Example: load from environment
 	if dbUser == "" {
 		dbUser = "root" // Default placeholder
@@ -58,7 +52,6 @@ func main() {
 	}
 
 	// Construct the DSN string
-	// Add parseTime=true which is often necessary for handling MySQL dates/times with Go's time.Time
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", dbUser, dbPass, dbHost, dbPort, dbName)
 
 	dbConfig := &internal.Database{
@@ -68,8 +61,6 @@ func main() {
 		Pass: dbPass,
 		Db:   dbName,
 		DSN:  dsn, // Provide the full DSN
-		// ReadOnly:         false, // Configure if needed
-		// WithExplainCheck: true, // Configure if needed based on application requirements
 	}
 
 	// Optional: Attempt to connect to the database early to verify configuration
@@ -88,21 +79,6 @@ func main() {
 	// Initialize the Expense calculation tools, passing the server
 	internal.InitializeExpenseMCPTools(s)
 	log.Println("Expense MCP tools initialized.")
-
-	// --- Start the MCP Server ---
-
-	// Define the server address to listen on
-	// Use environment variable or default to :8080
-	listenAddr := os.Getenv("LISTEN_ADDR")
-	if listenAddr == "" {
-		listenAddr = ":8080" // Default listen address (e.g., on all interfaces, port 8080)
-		log.Printf("LISTEN_ADDR environment variable not set, using default %s", listenAddr)
-	}
-
-	log.Printf("Starting MCP server on %s...", listenAddr)
-
-	// Run the server. This is a blocking call.
-	// It will return an error if the server cannot start or stops unexpectedly.
 
 	// Start the stdio server
 	if err := server.ServeStdio(s); err != nil {

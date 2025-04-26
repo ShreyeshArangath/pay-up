@@ -241,7 +241,7 @@ func (d *Database) GetDB() (*sqlx.DB, error) {
 }
 
 func (d *Database) HandleQuery(query, expect string) (string, error) {
-	result, headers, err := DoQuery(query, expect)
+	result, headers, err := d.DoQuery(query, expect)
 	if err != nil {
 		return "", err
 	}
@@ -261,7 +261,7 @@ func (d *Database) DoQuery(query, expect string) ([]map[string]interface{}, []st
 	}
 
 	if len(expect) > 0 {
-		if err := HandleExplain(query, expect); err != nil {
+		if err := d.HandleExplain(query, expect); err != nil {
 			return nil, nil, err
 		}
 	}
@@ -305,7 +305,7 @@ func (d *Database) HandleExec(query, expect string) (string, error) {
 	}
 
 	if len(expect) > 0 {
-		if err := HandleExplain(query, expect); err != nil {
+		if err := d.HandleExplain(query, expect); err != nil {
 			return "", err
 		}
 	}
