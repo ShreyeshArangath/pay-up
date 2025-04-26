@@ -47,7 +47,7 @@ func main() {
 
 	dbName := os.Getenv("DB_NAME") // Example: load from environment
 	if dbName == "" {
-		dbName = "mydatabase" // Default placeholder
+		dbName = "payup" // Default placeholder
 		log.Println("DB_NAME environment variable not set, using default 'mydatabase'")
 	}
 
@@ -55,20 +55,22 @@ func main() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", dbUser, dbPass, dbHost, dbPort, dbName)
 
 	dbConfig := &internal.Database{
-		Host: dbHost,
-		Port: dbPort,
-		User: dbUser,
-		Pass: dbPass,
-		Db:   dbName,
-		DSN:  dsn, // Provide the full DSN
+		Host:             dbHost,
+		Port:             dbPort,
+		User:             dbUser,
+		Pass:             dbPass,
+		Db:               dbName,
+		DSN:              dsn, // Provide the full DSN
+		ReadOnly:         false,
+		WithExplainCheck: false,
 	}
 
 	// Optional: Attempt to connect to the database early to verify configuration
-	// _, err := dbConfig.GetDB()
-	// if err != nil {
-	//     log.Fatalf("Failed to connect to database: %v", err)
-	// }
-	// log.Println("Database connection configured successfully.")
+	_, err := dbConfig.GetDB()
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	log.Println("Database connection configured successfully.")
 
 	// --- Initialize Tools ---
 
